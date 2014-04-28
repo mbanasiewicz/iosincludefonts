@@ -1,6 +1,6 @@
 require 'plist'
 require 'daemons'
-
+require
 files = []
 ARGV.each do |arg|
   files << File.expand_path(arg)
@@ -27,16 +27,19 @@ end
 
 if fonts.count
 	application_plist = Plist::parse_xml(files[1])
-
-	application_plist['UIAppFonts'] = fonts
+	current_fonts = application_plist['UIAppFonts']
+	current_fonts << fonts
+	current_fonts.uniq!
+	
+	application_plist['UIAppFonts'] = current_fonts
 
 	puts "Found following fonts:"
 	puts fonts
 	puts "Continue? (y/n)"
-	return if 'n' == STDIN.gets.chomp
-
-	File.open(files[1], 'w') { |file| file.write(application_plist.to_plist) }
-	puts "File updated"
+	if STDIN.gets.chomp == 'n'
+		File.open(files[1], 'w') { |file| file.write(application_plist.to_plist) }
+		puts "File updated"
+	end
 else
 	puts "No fonts found"
 end
