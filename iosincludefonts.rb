@@ -1,6 +1,6 @@
 require 'plist'
 require 'daemons'
-require
+require 'colorize'
 files = []
 ARGV.each do |arg|
   files << File.expand_path(arg)
@@ -27,14 +27,17 @@ end
 
 if fonts.count
 	application_plist = Plist::parse_xml(files[1])
-	current_fonts = application_plist['UIAppFonts']
-	current_fonts << fonts
-	current_fonts.uniq!
+	fonts = (fonts << application_plist['UIAppFonts']).flatten
+	fonts.uniq!
 	
-	application_plist['UIAppFonts'] = current_fonts
+	application_plist['UIAppFonts'] = fonts
 
 	puts "Found following fonts:"
-	puts fonts
+	fonts.each do |ft| 
+		puts ft.colorize(:color => :red, :background => :white)
+	end
+	
+
 	puts "Continue? (y/n)"
 	if STDIN.gets.chomp == 'n'
 		File.open(files[1], 'w') { |file| file.write(application_plist.to_plist) }
