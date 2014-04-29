@@ -27,7 +27,11 @@ end
 
 if fonts.count
 	application_plist = Plist::parse_xml(files[1])
-	fonts = (fonts << application_plist['UIAppFonts']).flatten
+	application_fonts = application_plist['UIAppFonts']
+	if application_fonts
+		fonts = (fonts << application_plist['UIAppFonts']).flatten
+	end
+	
 	fonts.uniq!
 	
 	application_plist['UIAppFonts'] = fonts
@@ -39,7 +43,7 @@ if fonts.count
 	
 
 	puts "Continue? (y/n)"
-	if STDIN.gets.chomp == 'n'
+	if STDIN.gets.chomp == 'y'
 		File.open(files[1], 'w') { |file| file.write(application_plist.to_plist) }
 		puts "File updated"
 	end
